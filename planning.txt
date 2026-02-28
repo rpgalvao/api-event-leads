@@ -1,0 +1,111 @@
+===========================================================
+PLANEJAMENTO DO PROJETO: SISTEMA DE CAPTURA DE LEADS
+===========================================================
+
+1. OBJETIVO
+-----------------------------------------------------------
+API robusta para captura de contatos em eventos, com foco
+em integridade, segurança e escalabilidade (Node.js + Prisma 7).
+
+2. TECNOLOGIAS (STACK)
+-----------------------------------------------------------
+- Runtime: Node.js (v20+)
+- Linguagem: TypeScript
+- Banco: PostgreSQL
+- Framework: Express
+- Driver/Adapter: pg + @prisma/adapter-pg
+- ORM: Prisma 7
+- Validação: Zod
+- Segurança: Helmet, CORS, Bcryptjs, JWT
+- Imagens: Multer + Sharp
+
+3. MODELAGEM DETALHADA DO BANCO DE DADOS
+-----------------------------------------------------------
+
+Tabela: Users (Usuários do Sistema)
+ - id: UUID (Primary Key, Default: uuid_generate_v4())
+ - name: String
+ - email: String (Unique)
+ - password: String (Hash)
+ - role: Enum (ADMIN, USER)
+ - avatar_url: String (Optional)
+ - created_at: DateTime (Default: now())
+ - updated_at: DateTime (Updated_at)
+
+Tabela: Events (Eventos/Feiras)
+ - id: UUID (Primary Key)
+ - name: String
+ - location: String (Optional)
+ - start_date: DateTime
+ - end_date: DateTime
+ - created_at: DateTime (Default: now())
+
+Tabela: Products (Catálogo de Interesses)
+ - id: UUID (Primary Key)
+ - name: String (Unique - ex: 'TriStat', 'Premier Hb9210')
+ - description: Text (Optional)
+
+Tabela: Leads (Contatos capturados)
+ - id: UUID (Primary Key)
+ - name: String
+ - email: String (Optional)
+ - phone: String
+ - company: String (Antiga 'instituicao')
+ - city: String
+ - state: String (Char 2)
+ - business_card_url: String (Caminho da foto do cartão)
+ - observations: Text (Optional)
+ - status: Enum (NEW, CONTACTED, QUALIFIED, LOST)
+ - user_id: UUID (Foreign Key -> Users)
+ - event_id: UUID (Foreign Key -> Events)
+ - created_at: DateTime (Default: now())
+ - updated_at: DateTime
+
+Tabela: _LeadInterests (Relação Muitos-para-Muitos)
+ - A: Lead_ID (Foreign Key)
+ - B: Product_ID (Foreign Key)
+
+4. FLUXO DE IMAGENS
+-----------------------------------------------------------
+1. Upload via Multer (Pasta temp)
+2. Processamento via Sharp (Redimensionar/Comprimir)
+3. Salvar em /uploads
+4. Gravar o caminho (string) no banco de dados.
+
+5. ARQUITETURA DE PASTAS
+-----------------------------------------------------------
+/src
+  /routes      -> Definição de rotas
+  /controllers -> Lógica de entrada/saída (Express)
+  /services    -> Regras de negócio e Prisma
+  /middlewares -> Auth, Error Handler, Zod Validation
+  /config      -> Configuração do Driver PG e Multer
+
+6. DIFERENCIAIS DE IMPLEMENTAÇÃO
+-----------------------------------------------------------
+- Uso de UUID: IDs não sequenciais para maior segurança.
+- Central Error Handler: Middleware para capturar erros de forma global.
+- Normalização: Separação de Eventos e Produtos para relatórios precisos.
+- Otimização: Uso do Sharp para reduzir o peso das fotos de cartões de visita.
+===========================================================
+
+EXEMPLO DE PASTAS
+
+node-sistema-eventos/
+├── src/
+│   ├── @types/            # Definições de tipos personalizadas (ex: para o Express)
+│   ├── config/            # Configurações de bibliotecas (Multer, Cloudinary, etc)
+│   ├── controllers/       # Recebem a requisição (req) e enviam a resposta (res)
+│   ├── middlewares/       # Filtros (Autenticação, validação de erros, logs)
+│   ├── services/          # Onde mora a "Regra de Negócio" (Cálculos, salvar no banco)
+│   ├── routes/            # Definição dos caminhos da API (ex: /leads, /users)
+│   ├── utils/             # Funções utilitárias (formatadores, validadores simples)
+│   ├── validators/        # Schemas de validação do zod para os dados recebidos
+│   └── server.ts          # Arquivo principal que inicia o servidor
+├── prisma/
+│   └── schema.prisma      # Onde definimos as tabelas do banco de dados
+├── uploads/               # Pasta local para salvar as fotos (cartões de visita)
+├── .env                   # Variáveis sensíveis (URL do banco, Segredos JWT)
+├── .gitignore             # Arquivos que não vão para o GitHub (ex: node_modules)
+├── package.json           # Dependências e scripts do projeto
+└── tsconfig.json          # Configurações do TypeScript
