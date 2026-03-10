@@ -12,3 +12,76 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// Definição de um enum para as permissões
+enum Role {
+  ADMIN
+  USER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  LOST
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role     @default(USER)
+  avatar_url String?
+  leads      Lead[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("users")
+}
+
+model Event {
+  id         String   @id @default(uuid())
+  name       String
+  location   String?
+  start_date DateTime
+  end_date   DateTime
+  leads      Lead[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("events")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  leads       Lead[]   @relation("LeadInterests")
+
+  @@map("products")
+}
+
+model Lead {
+  id                String     @id @default(uuid())
+  name              String
+  email             String?
+  phone             String
+  company           String?
+  city              String?
+  state             String?    @db.Char(2)
+  business_card_url String?
+  observation       String?    @db.Text
+  status            LeadStatus @default(NEW)
+  userId            String
+  user              User       @relation(fields: [userId], references: [id])
+  eventId           String
+  event             Event      @relation(fields: [eventId], references: [id])
+  interests         Product[]  @relation("LeadInterests")
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @default(now()) @updatedAt
+
+  @@map("leads")
+}

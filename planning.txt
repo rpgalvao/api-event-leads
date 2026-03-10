@@ -87,7 +87,47 @@ Tabela: _LeadInterests (Relação Muitos-para-Muitos)
 - Central Error Handler: Middleware para capturar erros de forma global.
 - Normalização: Separação de Eventos e Produtos para relatórios precisos.
 - Otimização: Uso do Sharp para reduzir o peso das fotos de cartões de visita.
+
+7. DEFINIÇÃO DE ENDPOINTS (API ROUTES)
+-----------------------------------------------------------
+
+AUTENTICAÇÃO & USUÁRIOS (Auth)
+- POST   /auth/login          -> Autentica usuário e retorna JWT Token.
+- POST   /users               -> Cadastro de novos usuários (Restrito: Admin).
+- GET    /users/me            -> Retorna dados do perfil do usuário logado.
+- PATCH  /users/avatar        -> Atualiza a foto de perfil do usuário.
+
+EVENTOS (Events)
+- GET    /events              -> Lista todos os eventos cadastrados.
+- POST   /events              -> Cria um novo evento (Ex: Feira Hospitalar).
+- GET    /events/:id          -> Detalhes de um evento específico.
+- PUT    /events/:id          -> Atualiza dados do evento.
+
+PRODUTOS (Products)
+- GET    /products            -> Lista catálogo para seleção de interesses.
+- POST   /products            -> Cadastra novo produto no sistema.
+- DELETE /products/:id        -> Remove produto (se não houver vínculo).
+
+LEADS (Captura de Contatos)
+- POST   /leads               -> Cadastra novo lead (Vincula Evento, User e Interesses).
+- GET    /leads               -> Lista geral de leads (com filtros e busca).
+- GET    /leads/event/:id     -> Filtra leads capturados em um evento específico.
+- GET    /leads/:id           -> Detalhes completos de um lead (inclui interesses).
+- PATCH  /leads/:id/status    -> Altera status (Novo, Qualificado, Perdido, etc).
+- POST   /leads/:id/card      -> Upload/Atualização da foto do cartão de visita.
+- DELETE /leads/:id           -> Remove um lead do sistema.
+
+7. PADRÕES DE RESPOSTA (HTTP STATUS CODES)
+-----------------------------------------------------------
+- 200 OK: Sucesso na leitura/atualização.
+- 201 Created: Sucesso na criação.
+- 400 Bad Request: Erro de validação (Zod).
+- 401 Unauthorized: Token ausente ou inválido.
+- 403 Forbidden: Usuário sem permissão (Role).
+- 404 Not Found: Recurso não encontrado no banco.
+- 500 Internal Server Error: Erro inesperado capturado pelo Global Handler.
 ===========================================================
+
 
 EXEMPLO DE PASTAS
 
