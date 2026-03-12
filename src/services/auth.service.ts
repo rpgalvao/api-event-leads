@@ -25,7 +25,6 @@ export const loginUser = async (email: string, password: string) => {
     const user = await UserService.getUserByEmail(email);
     if (!user) return null;
     const verifyPassword = await checkPassword(password, user.password);
-    console.log('check: ', verifyPassword);
     if (!verifyPassword) return null;
     const token = generateToken({ id: user.id, role: user.role });
     return token;

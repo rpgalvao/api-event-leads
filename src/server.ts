@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import router from '../src/routes/index.routes';
+import path from 'path';
 
 const server = express();
 const port = process.env.PORT;
@@ -10,7 +11,7 @@ server.use(cors());
 server.use(helmet());
 server.use(express.urlencoded({ extended: true }));
 server.use(express.json());
-server.use(express.static('public'));
+server.use('/uploads', express.static(path.resolve(__dirname, '..', 'uploads')));
 
 server.use(router);
 
