@@ -1,18 +1,20 @@
 import JWT from 'jsonwebtoken';
 
-interface TokenPayload {
+type TokenPayload = {
     id: string,
     role: string;
 };
 
-export const generateToken = (payload: TokenPayload): string => {
-    return JWT.sign({ payload },
+export const generateToken = (payload: any): string => {
+    return JWT.sign({ id: payload.id, role: payload.role },
         process.env.JWT_SECRET as string);
 };
 
-export const verifyToken = (token: string) => {
+export const verifyToken = (token: string): TokenPayload | undefined => {
     try {
-        return JWT.verify(token, process.env.JWT_SECRET as string) as TokenPayload;
+        const user = JWT.verify(token, process.env.JWT_SECRET as string) as any;
+        const userData = user.payload ? user.payload : user;
+        return userData as TokenPayload;
     } catch (err) {
         console.log('Falha JWT: ', err);
     }
