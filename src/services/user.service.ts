@@ -1,4 +1,6 @@
 import { User } from "../generated/prisma/client";
+import { UserUpdateInput } from "../generated/prisma/models";
+import { hashPassword } from "../libs/bcrypt";
 import { prisma } from "../libs/prisma";
 import { setFullURL } from "../utils/setFullUrl";
 
@@ -32,4 +34,30 @@ export const getUserById = async (id: string): Promise<UserProfile | null> => {
         ...user,
         avatar_url: user.avatar_url ? setFullURL(user.avatar_url) : null
     };
+};
+
+export const updateUser = async (id: string, data: any) => {
+    const updateData: any = { ...data };
+    if (updateData.email) {
+        const newEmail = await getUserByEmail(updateData.email);
+        if (newEmail) {
+            return null;
+        }
+    }
+
+    if (updateData.password) {
+        updateData.password = await hashPassword(updateData.password);
+    }
+    const updatedUser = await prisma.user.update({
+        where: { id },
+        data: updateData,
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            avatar_url: true
+        }
+    });
+    return updatedUser ?? null;
 };
