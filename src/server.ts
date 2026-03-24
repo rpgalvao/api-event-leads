@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import router from '../src/routes/index.routes';
 import path from 'path';
+import { errorMiddleware } from './middlewares/error.middleware';
 
 const server = express();
 const port = process.env.PORT;
@@ -14,6 +15,8 @@ server.use(express.json());
 server.use('/uploads', express.static(path.resolve(__dirname, '..', 'uploads')));
 
 server.use(router);
+
+server.use(errorMiddleware);
 
 server.listen(port, () => {
     console.log(`Server running at: http://localhost:${port}`);

@@ -1,5 +1,5 @@
+import { AppError } from "../errors/AppError";
 import { User } from "../generated/prisma/client";
-import { UserUpdateInput } from "../generated/prisma/models";
 import { hashPassword } from "../libs/bcrypt";
 import { prisma } from "../libs/prisma";
 import { setFullURL } from "../utils/setFullUrl";
@@ -39,9 +39,9 @@ export const getUserById = async (id: string): Promise<UserProfile | null> => {
 export const updateUser = async (id: string, data: any) => {
     const updateData: any = { ...data };
     if (updateData.email) {
-        const newEmail = await getUserByEmail(updateData.email);
-        if (newEmail) {
-            return null;
+        const userWithEmail = await getUserByEmail(updateData.email);
+        if (userWithEmail && userWithEmail.id !== id) {
+            throw new AppError("E-mail informado já está em uso", 400);
         }
     }
 
@@ -56,8 +56,12 @@ export const updateUser = async (id: string, data: any) => {
             name: true,
             email: true,
             role: true,
-            avatar_url: true
+            avatar_url: true,
+            createdAt: true,
+            updatedAt: true
         }
     });
-    return updatedUser ?? null;
+    if (!updatedUser) throw new AppError("Erro ao atualizar usuário", 500);
+
+    return updatedUser;
 };
