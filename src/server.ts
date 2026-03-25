@@ -12,7 +12,7 @@ server.use(cors());
 server.use(helmet());
 server.use(express.urlencoded({ extended: true }));
 server.use(express.json());
-server.use('/uploads', express.static(path.resolve(__dirname, '..', 'uploads')));
+server.use('/files', express.static(path.resolve(__dirname, '..', 'uploads')));
 
 server.use(router);
 
