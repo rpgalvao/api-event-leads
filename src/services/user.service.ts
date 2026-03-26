@@ -1,12 +1,8 @@
-import path from "path";
-import fs from 'fs/promises';
-import sharp from "sharp";
 import { AppError } from "../errors/AppError";
 import { Prisma, User } from "../generated/prisma/client";
 import { hashPassword } from "../libs/bcrypt";
 import { prisma } from "../libs/prisma";
 import { setFullURL } from "../utils/setFullUrl";
-import { uploadConfig } from "../libs/multer";
 import { StorageProvider } from "../providers/StorageProvider";
 
 type UserProfile = Omit<User, 'password'>;
@@ -22,15 +18,6 @@ export const getUserByEmail = async (email: string) => {
 export const getUserById = async (id: string): Promise<UserProfile | null> => {
     const user = await prisma.user.findFirst({
         where: { id },
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            createdAt: true,
-            updatedAt: true,
-            avatar_url: true
-        }
     });
 
     if (!user) return null;
@@ -39,6 +26,29 @@ export const getUserById = async (id: string): Promise<UserProfile | null> => {
         ...user,
         avatar_url: user.avatar_url ? setFullURL(user.avatar_url) : null
     };
+};
+
+export const listUsers = async () => {
+    const users = await prisma.user.findMany({
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            avatar_url: true,
+            createdAt: true,
+            updatedAt: true
+        }
+    });
+
+    const usersWithAvatarUrl = users.map(user => {
+        return {
+            ...user,
+            avatar_url: user.avatar_url ? setFullURL(`files/avatars/${user.avatar_url}`) : null
+        };
+    });
+
+    return usersWithAvatarUrl;
 };
 
 export const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
@@ -88,25 +98,12 @@ export const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
     return updatedUser;
 };
 
-export const listUsers = async () => {
-    const users = await prisma.user.findMany({
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            avatar_url: true,
-            createdAt: true,
-            updatedAt: true
-        }
-    });
-
-    const usersWithAvatarUrl = users.map(user => {
-        return {
-            ...user,
-            avatar_url: user.avatar_url ? setFullURL(`files/avatars/${user.avatar_url}`) : null
-        };
-    });
-
-    return usersWithAvatarUrl;
+export const removeUser = async (id: string) => {
+    const user = await getUserById(id);
+    if (!user) throw new AppError('Usuário não encontrado', 404);
+    if (user.avatar_url) {
+        const storage = new StorageProvider();
+        await storage.deleteFile(user.avatar_url);
+    }
+    return await prisma.user.delete({ where: { id } });
 };

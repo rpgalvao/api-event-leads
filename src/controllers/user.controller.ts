@@ -4,7 +4,6 @@ import * as UserService from "../services/user.service";
 import { updateUserSchema } from "../validators/auth.validator";
 
 export const listUsers: RequestHandler = async (req, res) => {
-    const id = req.user?.id;
     const role = req.user?.role;
     if (role !== 'ADMIN') throw new AppError('Usuário não autorizado', 403);
     const users = await UserService.listUsers();
@@ -38,4 +37,11 @@ export const updateUser: RequestHandler = async (req, res) => {
     }
     const updatedUser = await UserService.updateUser(user.id, data);
     res.status(200).json({ success: true, data: updatedUser });
+};
+
+export const removeUser: RequestHandler = async (req, res) => {
+    const id = req.user?.id;
+    if (!id) throw new AppError('Usuário não autorizado', 401);
+    await UserService.removeUser(id);
+    res.status(200).json({ success: true });
 };
