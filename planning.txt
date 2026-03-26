@@ -95,7 +95,10 @@ AUTENTICAÇÃO & USUÁRIOS (Auth)
 - POST   /auth/login          -> Autentica usuário e retorna JWT Token.
 - POST   /users               -> Cadastro de novos usuários (Restrito: Admin).
 - GET    /users/me            -> Retorna dados do perfil do usuário logado.
-- PATCH  /users/avatar        -> Atualiza a foto de perfil do usuário.
+- PATCH  /users/:id.          -> Atualiza a foto de perfil do usuário.
+- GET    /users               -> Cadastro de novos usuários (Restrito: Admin).
+- GET    /users/:id           -> Cadastro de novos usuários (Restrito: Admin).
+- DELET  /users/:id           -> Cadastro de novos usuários (Restrito: Admin).
 
 EVENTOS (Events)
 - GET    /events              -> Lista todos os eventos cadastrados.

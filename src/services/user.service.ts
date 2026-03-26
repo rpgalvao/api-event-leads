@@ -7,6 +7,7 @@ import { hashPassword } from "../libs/bcrypt";
 import { prisma } from "../libs/prisma";
 import { setFullURL } from "../utils/setFullUrl";
 import { uploadConfig } from "../libs/multer";
+import { StorageProvider } from "../providers/StorageProvider";
 
 type UserProfile = Omit<User, 'password'>;
 
@@ -46,31 +47,12 @@ export const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
 
     const updateData = { ...data };
 
-    const newAvatar = updateData.avatar_url;
+    const storage = new StorageProvider();
 
-    if (newAvatar && typeof newAvatar === 'string') {
-        const originalPath = path.resolve(uploadConfig.directory, newAvatar);
-        const finalPath = path.resolve(uploadConfig.directory, 'avatars', newAvatar);
-        try {
-            await sharp(originalPath)
-                .resize(200, 200)
-                .toFormat('jpg')
-                .jpeg({ quality: 70 })
-                .toFile(finalPath);
-
-            await fs.unlink(originalPath);
-        } catch (error) {
-            console.log(`Erro no Sharp: ${error}`);
-        }
-
+    if (updateData.avatar_url && typeof updateData.avatar_url === 'string') {
+        await storage.saveFile(updateData.avatar_url);
         if (user.avatar_url) {
-            const oldAvatarPath = path.resolve(uploadConfig.directory, 'avatars', user.avatar_url);
-            try {
-                await fs.stat(oldAvatarPath);
-                await fs.unlink(oldAvatarPath);
-            } catch {
-                console.log(`Aviso: Avatar antigo ${user.avatar_url} não encontrado para deleção`);
-            }
+            await storage.deleteFile(user.avatar_url);
         }
     }
 
@@ -84,6 +66,7 @@ export const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
     if (updateData.password) {
         updateData.password = await hashPassword(updateData.password as string);
     }
+
     const updatedUser = await prisma.user.update({
         where: { id },
         data: updateData,
@@ -103,4 +86,27 @@ export const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
         updatedUser.avatar_url = setFullURL(`files/avatars/${updatedUser.avatar_url}`);
     }
     return updatedUser;
+};
+
+export const listUsers = async () => {
+    const users = await prisma.user.findMany({
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            avatar_url: true,
+            createdAt: true,
+            updatedAt: true
+        }
+    });
+
+    const usersWithAvatarUrl = users.map(user => {
+        return {
+            ...user,
+            avatar_url: user.avatar_url ? setFullURL(`files/avatars/${user.avatar_url}`) : null
+        };
+    });
+
+    return usersWithAvatarUrl;
 };
