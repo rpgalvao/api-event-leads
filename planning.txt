@@ -132,6 +132,7 @@ LEADS (Captura de Contatos)
 EXEMPLO DE PASTAS
 
 node-sistema-eventos/
+├── public/
 ├── src/
 │   ├── @types/            # Definições de tipos personalizadas (ex: para o Express)
 │   ├── config/            # Configurações de bibliotecas (Multer, Cloudinary, etc)
@@ -145,7 +146,9 @@ node-sistema-eventos/
 ├── prisma/
 │   └── schema.prisma      # Onde definimos as tabelas do banco de dados
 ├── uploads/               # Pasta local para salvar as fotos (cartões de visita)
+│   └── avatars/ 
 ├── .env                   # Variáveis sensíveis (URL do banco, Segredos JWT)
+├── .env.example
 ├── .gitignore             # Arquivos que não vão para o GitHub (ex: node_modules)
 ├── package.json           # Dependências e scripts do projeto
 └── tsconfig.json          # Configurações do TypeScript

@@ -35,6 +35,10 @@ export const updateUser: RequestHandler = async (req, res) => {
     }
     const data = updateUserSchema.parse(req.body);
 
+    if (req.file) {
+        data.avatar_url = req.file.filename;
+    }
+
     const user = await UserService.getUserById(id as string);
     if (!user) {
         return res.status(404).json({ success: false, message: 'Usuário não encontrado' });

@@ -2,12 +2,12 @@ import multer from "multer";
 import path from "path";
 import { v4 } from "uuid";
 
-const tmpFolder = path.resolve(__dirname, '..', '..', 'uploads');
+export const UPLOADS_FOLDER = path.resolve(__dirname, '..', '..', '..', 'uploads');
 
 export const uploadConfig = {
-    directory: tmpFolder,
+    directory: UPLOADS_FOLDER,
     storage: multer.diskStorage({
-        destination: tmpFolder,
+        destination: UPLOADS_FOLDER,
         filename: (req, file, callback) => {
             const fileExtension = path.extname(file.originalname);
             const fileHash = v4();
