@@ -1,6 +1,7 @@
 import { Router } from "express";
 import authRoutes from './auth.routes';
 import userRoutes from './user.routes';
+import eventRoutes from './event.routes';
 import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
@@ -16,6 +17,7 @@ router.use('/auth', authRoutes);
 // rotas protegidas
 router.use(authMiddleware);
 router.use('/users', userRoutes);
+router.use('/events', eventRoutes);
 
 // private health check
 router.get('/private-ping', (req, res) => {

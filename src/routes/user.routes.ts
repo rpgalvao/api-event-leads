@@ -10,7 +10,7 @@ const upload = multer(uploadConfig);
 
 /**
  * @swagger
- * /users/users:
+ * /users:
  *   get:
  *     summary: Lista todos os usuários (Apenas Admin)
  *     tags: [Users]
@@ -24,10 +24,10 @@ const upload = multer(uploadConfig);
  *       401:
  *         description: Token ausente ou inválido
  */
-route.get('/users', UserController.listUsers);
-route.post('/users', authoryzeByRole, AuthController.registerUser);
-route.get('/users/me', UserController.getProfile);
-route.put('/users/:id', upload.single('avatar'), UserController.updateUser);
-route.delete('/users/:id', UserController.removeUser);
+route.get('/', UserController.listUsers);
+route.post('/', authoryzeByRole, AuthController.registerUser);
+route.get('/me', UserController.getProfile);
+route.put('/:id', upload.single('avatar'), UserController.updateUser);
+route.delete('/:id', UserController.removeUser);
 
 export default route;

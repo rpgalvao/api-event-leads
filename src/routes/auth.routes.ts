@@ -21,7 +21,7 @@ const route = Router();
  *                 example: admin@rpgsistemas.com
  *               password:
  *                 type: string
- *                 example: "123456"
+ *                 example: "teste"
  *     responses:
  *       200:
  *         description: Login realizado com sucesso
