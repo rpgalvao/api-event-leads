@@ -5,7 +5,7 @@ import { updateUserSchema } from "../validators/auth.validator";
 
 export const listUsers: RequestHandler = async (req, res) => {
     const role = req.user?.role;
-    if (role !== 'ADMIN') throw new AppError('Usuário não autorizado', 403);
+    if (role !== 'ADMIN') throw new AppError('Usuário sem permissão para essa função', 403);
     const users = await UserService.listUsers();
     res.status(200).json({ success: true, data: users });
 };
@@ -40,8 +40,9 @@ export const updateUser: RequestHandler = async (req, res) => {
 };
 
 export const removeUser: RequestHandler = async (req, res) => {
-    const id = req.user?.id;
-    if (!id) throw new AppError('Usuário não autorizado', 401);
-    await UserService.removeUser(id);
+    const { id } = req.params;
+    if (!req.user) throw new AppError('Usuário sem autorização', 403);
+    const role = req.user.role;
+    await UserService.removeUser(id as string, role);
     res.status(200).json({ success: true });
 };

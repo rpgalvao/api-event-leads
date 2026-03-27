@@ -7,6 +7,9 @@ export class StorageProvider {
     public async saveFile(file: string): Promise<void> {
         const originalPath = path.resolve(uploadConfig.directory, file);
         const finalPath = path.resolve(uploadConfig.directory, 'avatars', file);
+        console.log('Salva original file: ', originalPath);
+        console.log('Salva final file: ', finalPath);
+
 
         try {
             await sharp(originalPath)
@@ -23,6 +26,7 @@ export class StorageProvider {
 
     public async deleteFile(file: string): Promise<void> {
         const filePath = path.resolve(uploadConfig.directory, 'avatars', file);
+        console.log('Delete file: ', filePath);
 
         try {
             await fs.stat(filePath);

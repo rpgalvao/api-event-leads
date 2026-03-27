@@ -98,9 +98,11 @@ export const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
     return updatedUser;
 };
 
-export const removeUser = async (id: string) => {
-    const user = await getUserById(id);
+export const removeUser = async (id: string, role: string) => {
+    const user = await prisma.user.findUnique({ where: { id } });
     if (!user) throw new AppError('Usuário não encontrado', 404);
+    console.log('Permissão: ', role);
+    if (role !== 'ADMIN') throw new AppError('Usuário sem permissão de deleção', 403);
     if (user.avatar_url) {
         const storage = new StorageProvider();
         await storage.deleteFile(user.avatar_url);
