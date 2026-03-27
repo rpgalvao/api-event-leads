@@ -8,6 +8,22 @@ import * as UserController from "../controllers/user.controller";
 const route = Router();
 const upload = multer(uploadConfig);
 
+/**
+ * @swagger
+ * /users/users:
+ *   get:
+ *     summary: Lista todos os usuários (Apenas Admin)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de usuários retornada com sucesso
+ *       403:
+ *         description: Usuário sem permissão (Não é ADMIN)
+ *       401:
+ *         description: Token ausente ou inválido
+ */
 route.get('/users', UserController.listUsers);
 route.post('/users', authoryzeByRole, AuthController.registerUser);
 route.get('/users/me', UserController.getProfile);
