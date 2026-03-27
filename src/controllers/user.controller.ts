@@ -1,3 +1,4 @@
+import fs from "fs/promises";
 import { RequestHandler } from "express";
 import { AppError } from "../errors/AppError";
 import * as UserService from "../services/user.service";
@@ -23,7 +24,10 @@ export const updateUser: RequestHandler = async (req, res) => {
     const loggedUserId = req.user?.id;
     const loggedUserRole = req.user?.role;
     if (loggedUserRole !== 'ADMIN' && loggedUserId !== id) {
-        return res.status(403).json({ success: false, messsage: 'Usuário sem permissão' });
+        if (req.file) {
+            await fs.unlink(req.file.path);
+        }
+        throw new AppError('Usuário não autorizado', 403);
     }
     const data = updateUserSchema.parse(req.body);
 
@@ -41,8 +45,8 @@ export const updateUser: RequestHandler = async (req, res) => {
 
 export const removeUser: RequestHandler = async (req, res) => {
     const { id } = req.params;
-    if (!req.user) throw new AppError('Usuário sem autorização', 403);
-    const role = req.user.role;
+    const role = req.user?.role;
+    if (role !== 'ADMIN') throw new AppError('Usuário sem autorização', 403);
     await UserService.removeUser(id as string, role);
-    res.status(200).json({ success: true });
+    res.status(204).json({ success: true });
 };
