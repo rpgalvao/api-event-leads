@@ -82,4 +82,64 @@ route.get('/', EventController.listEvents);
  */
 route.get('/:id', EventController.getEvent);
 
+/**
+ * @swagger
+ * /events/{id}:
+ *   put:
+ *     summary: Atualiza dados de um evento
+ *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *               start_date:
+ *                 type: string
+ *               end_date:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Evento atualizado
+ *       404:
+ *         description: Evento não encontrado
+ */
+route.put('/:id', EventController.updateEvent);
+
+/**
+ * @swagger
+ * /events/{id}:
+ *   delete:
+ *     summary: Remove um evento (se não houver leads)
+ *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Evento removido com sucesso
+ *       400:
+ *         description: Erro de integridade (Existem leads vinculados)
+ *       404:
+ *         description: Evento não encontrado
+ */
+route.delete('/:id', EventController.deleteEvent);
+
 export default route;

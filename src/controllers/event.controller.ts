@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import * as EventService from "../services/event.service";
-import { createEventSchema, getEventSchema } from "../validators/event.validator";
+import { createEventSchema, getEventSchema, updateEventSchema } from "../validators/event.validator";
+import { AppError } from "../errors/AppError";
 
 export const createEvent: RequestHandler = async (req, res) => {
     const data = createEventSchema.parse(req.body);
@@ -18,4 +19,19 @@ export const getEvent: RequestHandler = async (req, res) => {
     const { id } = getEventSchema.parse(req.params);
     const event = await EventService.getEventById(id);
     res.status(200).json({ success: true, data: event });
+};
+
+export const updateEvent: RequestHandler = async (req, res) => {
+    const { id } = req.params;
+    if (!id) throw new AppError('Necessário informar o ID do evento', 400);
+    const data = updateEventSchema.parse(req.body);
+    const event = await EventService.updateEvent(id as string, data);
+    res.status(200).json({ success: true, data: event });
+};
+
+export const deleteEvent: RequestHandler = async (req, res) => {
+    const { id } = req.params;
+    if (!id) throw new AppError('Necessário informar o ID do evento', 400);
+    await EventService.removeEvent(id as string);
+    res.status(200).json({ success: true, data: null });
 };
