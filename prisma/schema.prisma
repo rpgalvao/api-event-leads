@@ -21,9 +21,9 @@ enum Role {
 
 enum LeadStatus {
   NEW
-  CONTACTED
   QUALIFIED
-  LOST
+  NEGOTIATION
+  ARCHIVED
 }
 
 model User {
@@ -82,7 +82,9 @@ model Lead {
   event             Event      @relation(fields: [eventId], references: [id])
   interests         Product[]  @relation("LeadInterests")
   createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @default(now()) @updatedAt
+  updatedAt         DateTime   @updatedAt
 
+  @@index([eventId])
+  @@index([userId])
   @@map("leads")
 }
