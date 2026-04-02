@@ -17,7 +17,7 @@ server.use(express.urlencoded({ extended: true }));
 server.use(express.json());
 server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 server.use('/files/cards', express.static(path.resolve(UPLOADS_FOLDER, 'cards')));
-server.use('files/avatars', express.static(path.resolve(UPLOADS_FOLDER, 'avatars')));
+server.use('/files/avatars', express.static(path.resolve(UPLOADS_FOLDER, 'avatars')));
 
 server.use(router);
 

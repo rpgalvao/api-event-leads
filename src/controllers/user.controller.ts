@@ -23,24 +23,28 @@ export const updateUser: RequestHandler = async (req, res) => {
     const { id } = req.params;
     const loggedUserId = req.user?.id;
     const loggedUserRole = req.user?.role;
-    if (loggedUserRole !== 'ADMIN' && loggedUserId !== id) {
-        if (req.file) {
-            await fs.unlink(req.file.path);
+    const file = req.file;
+
+    try {
+        if (loggedUserRole !== 'ADMIN' && loggedUserId !== id) {
+            if (file) await fs.unlink(file.path);
+            throw new AppError('Usuário não autorizado', 403);
         }
-        throw new AppError('Usuário não autorizado', 403);
+        const user = await UserService.getUserById(id as string);
+        if (!user) {
+            if (file) await fs.unlink(file?.path);
+            return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+        }
+        const data = updateUserSchema.parse(req.body);
+        if (file) {
+            data.avatar_url = file.filename;
+        }
+        const updatedUser = await UserService.updateUser(user.id, data);
+        res.status(200).json({ success: true, data: updatedUser });
+    } catch (error) {
+        if (file) await fs.unlink(file.path);
+        throw error;
     }
-    const data = updateUserSchema.parse(req.body);
-
-    if (req.file) {
-        data.avatar_url = req.file.filename;
-    }
-
-    const user = await UserService.getUserById(id as string);
-    if (!user) {
-        return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
-    }
-    const updatedUser = await UserService.updateUser(user.id, data);
-    res.status(200).json({ success: true, data: updatedUser });
 };
 
 export const removeUser: RequestHandler = async (req, res) => {
