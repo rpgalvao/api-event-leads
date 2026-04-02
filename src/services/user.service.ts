@@ -60,9 +60,9 @@ export const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
     const storage = new StorageProvider();
 
     if (updateData.avatar_url && typeof updateData.avatar_url === 'string') {
-        await storage.saveFile(updateData.avatar_url);
+        await storage.saveFile(updateData.avatar_url, 'avatars', 200);
         if (user.avatar_url) {
-            await storage.deleteFile(user.avatar_url);
+            await storage.deleteFile(user.avatar_url, 'avatars');
         }
     }
 
@@ -104,7 +104,7 @@ export const removeUser = async (id: string, role: string) => {
     if (role !== 'ADMIN') throw new AppError('Usuário sem permissão de deleção', 403);
     if (user.avatar_url) {
         const storage = new StorageProvider();
-        await storage.deleteFile(user.avatar_url);
+        await storage.deleteFile(user.avatar_url, 'avatars');
     }
     return await prisma.user.delete({ where: { id } });
 };
