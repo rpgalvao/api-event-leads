@@ -74,6 +74,83 @@ route.post('/', LeadController.createLead);
  */
 route.get('/', LeadController.listLeads);
 
+/**
+ * @swagger
+ * /leads/{id}/card:
+ *   patch:
+ *     summary: Faz o upload da foto do cartão de visita
+ *     tags: [Leads]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               card:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Imagem processada com sucesso
+ */
+
+/**
+ * @swagger
+ * /leads/{id}:
+ *   put:
+ *     summary: Atualiza informações de texto do lead
+ *     tags: [Leads]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               company:
+ *                 type: string
+ *               observation:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Lead atualizado com sucesso
+ */
+
+/**
+ * @swagger
+ * /leads/{id}:
+ *   delete:
+ *     summary: Remove um lead e sua imagem do sistema
+ *     tags: [Leads]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Lead removido com sucesso
+ */
 route.patch('/:id/card', upload.single('card'), LeadController.uploadCard);
 
 route.put('/:id', LeadController.updateLead);
