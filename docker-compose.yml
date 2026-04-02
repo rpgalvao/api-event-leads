@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+    database:
+        image: postgres:15
+        container_name: rpg_db
+        restart: always
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: root
+            POSTGRES_DB: leads_db
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+
+    api:
+        build: .
+        container_name: rpg_api
+        restart: always
+        ports:
+            - "3333:3333"
+        environment:
+            - DATABASE_URL=postgresql://postgres:root@database:5432/leads_db?schema=public
+            - PORT=3333
+            - BASE_URL=http://localhost:3333
+            - NODE_ENVIRONMENT=development
+        depends_on:
+            - database
+        volumes:
+            - .:/usr/app
+            - /usr/app/node_modules
+            - ./uploads:/usr/app/uploads
+
+volumes:
+    pgdata:
