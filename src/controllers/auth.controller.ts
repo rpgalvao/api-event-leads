@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { loginUserSchema, registerUserSchema, updateUserSchema } from "../validators/auth.validator";
 import * as AuthService from '../services/auth.service';
-import * as UserService from '../services/user.service';
+import { getUserByEmail } from "../services/user.service";
 
 export const registerUser: RequestHandler = async (req, res) => {
     const data = registerUserSchema.parse(req.body);
@@ -15,6 +15,18 @@ export const loginUser: RequestHandler = async (req, res) => {
     const { email, password } = data;
     const token = await AuthService.loginUser(email, password);
     if (!token) return res.status(401).json({ success: false, message: 'Credenciais inválidas', data: null });
-    res.status(200).json({ success: true, message: 'Login efetuado com sucesso', data: { token } });
+    const user = await getUserByEmail(email);
+    res.status(200).json({
+        success: true,
+        message: 'Login efetuado com sucesso',
+        data: {
+            token,
+            user: {
+                name: user?.name,
+                email: user?.email,
+                role: user?.role
+            }
+        }
+    });
 };
 
