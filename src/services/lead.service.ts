@@ -69,6 +69,18 @@ export const listLeads = async (filters: { eventId?: string, userId?: string; })
     return leads;
 };
 
+export const getLeadById = async (id: string) => {
+    const lead = await prisma.lead.findUnique({
+        where: { id },
+        include: {
+            event: true,
+            interests: true
+        }
+    });
+    if (!lead) throw new AppError('Lead não encontrado', 404);
+    return lead;
+};
+
 export const updateLeadCard = async (leadId: string, filename: string) => {
     const storage = new StorageProvider();
     const lead = await prisma.lead.findUnique({ where: { id: leadId } });

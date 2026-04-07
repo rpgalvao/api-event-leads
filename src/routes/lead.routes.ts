@@ -152,7 +152,7 @@ route.get('/', LeadController.listLeads);
  *         description: Lead removido com sucesso
  */
 route.patch('/:id/card', upload.single('card'), LeadController.uploadCard);
-
+route.get('/:id', LeadController.getLead);
 route.put('/:id', LeadController.updateLead);
 
 route.delete('/:id', LeadController.removeLead);

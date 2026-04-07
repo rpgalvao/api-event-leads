@@ -28,6 +28,12 @@ export const listLeads: RequestHandler = async (req, res) => {
     res.status(200).json({ success: true, data: leads });
 };
 
+export const getLead: RequestHandler = async (req, res) => {
+    const { id } = getLeadIdSchema.parse(req.params);
+    const lead = await LeadService.getLeadById(id);
+    res.status(200).json({ success: true, data: lead });
+};
+
 export const uploadCard: RequestHandler = async (req, res) => {
     const { id } = getLeadIdSchema.parse(req.params);
     const file = req.file;
