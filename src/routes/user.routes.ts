@@ -104,6 +104,7 @@ const upload = multer(uploadConfig);
 route.get('/', UserController.listUsers);
 route.post('/', authoryzeByRole, AuthController.registerUser);
 route.get('/me', UserController.getProfile);
+route.get('/:id', UserController.getUser);
 route.put('/:id', upload.single('avatar'), UserController.updateUser);
 route.delete('/:id', UserController.removeUser);
 

@@ -24,7 +24,7 @@ export const getUserById = async (id: string): Promise<UserProfile | null> => {
 
     return {
         ...user,
-        avatar_url: user.avatar_url ? setFullURL(user.avatar_url) : null
+        avatar_url: user.avatar_url ? setFullURL(`files/avatars/${(user.avatar_url)}`) : null
     };
 };
 
