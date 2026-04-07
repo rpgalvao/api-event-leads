@@ -66,7 +66,14 @@ export const listLeads = async (filters: { eventId?: string, userId?: string; })
         },
         orderBy: { createdAt: 'desc' }
     });
-    return leads;
+
+    const leadsWithFullUrl = leads.map(lead => {
+        return {
+            ...lead,
+            business_card_url: lead.business_card_url ? setFullURL(`files/cards/${lead.business_card_url}`) : null
+        };
+    });
+    return leadsWithFullUrl;
 };
 
 export const getLeadById = async (id: string) => {
@@ -78,6 +85,9 @@ export const getLeadById = async (id: string) => {
         }
     });
     if (!lead) throw new AppError('Lead não encontrado', 404);
+    if (lead.business_card_url) {
+        lead.business_card_url = setFullURL(`files/cards/${lead.business_card_url}`);
+    }
     return lead;
 };
 
