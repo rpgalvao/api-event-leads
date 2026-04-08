@@ -29,10 +29,14 @@ A API utiliza um sistema de armazenamento organizado por subpastas dentro do dir
 ### 2. Configuração do Ambiente (.env)
 
 Crie um arquivo `.env` seguindo o padrão:
+
+```bash
 PORT=3333
 NODE_ENVIRONMENT=development
 DATABASE_URL="postgresql://user:password@localhost:5432/leads_db?schema=public"
 BASE_URL="http://localhost:3333"
+
+```
 
 ### 3. Execução
 
@@ -45,6 +49,9 @@ BASE_URL="http://localhost:3333"
 
 # Rodar migrations do Prisma
   npx prisma migrate dev
+
+# Gerar o Prisma Client
+  npx prisma generate
 
 # Iniciar servidor em desenvolvimento
   npm run dev
