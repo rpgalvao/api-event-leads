@@ -37,8 +37,12 @@ export const getLead: RequestHandler = async (req, res) => {
 export const uploadCard: RequestHandler = async (req, res) => {
     const { id } = getLeadIdSchema.parse(req.params);
     const file = req.file;
+
     if (!file) throw new AppError('Nenhuma imagem enviada', 400);
-    const lead = await LeadService.updateLeadCard(id as string, file.filename);
+
+    // AQUI ESTÁ A MUDANÇA: trocamos file.filename por file.buffer
+    const lead = await LeadService.updateLeadCard(id as string, file.buffer);
+
     res.status(200).json({ success: true, message: 'Cartão de visita processado com sucesso!', data: lead });
 };
 

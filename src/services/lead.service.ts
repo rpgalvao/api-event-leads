@@ -68,9 +68,14 @@ export const listLeads = async (filters: { eventId?: string, userId?: string; })
     });
 
     const leadsWithFullUrl = leads.map(lead => {
+        // Verifica se a URL já é da nuvem
+        const isCloudUrl = lead.business_card_url?.startsWith('http');
+
         return {
             ...lead,
-            business_card_url: lead.business_card_url ? setFullURL(`files/cards/${lead.business_card_url}`) : null
+            business_card_url: lead.business_card_url
+                ? (isCloudUrl ? lead.business_card_url : setFullURL(`files/cards/${lead.business_card_url}`))
+                : null
         };
     });
     return leadsWithFullUrl;
@@ -85,27 +90,38 @@ export const getLeadById = async (id: string) => {
         }
     });
     if (!lead) throw new AppError('Lead não encontrado', 404);
+
     if (lead.business_card_url) {
-        lead.business_card_url = setFullURL(`files/cards/${lead.business_card_url}`);
+        const isCloudUrl = lead.business_card_url.startsWith('http');
+        // Só aplica o setFullURL se não for um link do Cloudinary
+        if (!isCloudUrl) {
+            lead.business_card_url = setFullURL(`files/cards/${lead.business_card_url}`);
+        }
     }
     return lead;
 };
 
-export const updateLeadCard = async (leadId: string, filename: string) => {
+// ATENÇÃO: Mudamos o segundo parâmetro de 'filename: string' para 'fileBuffer: Buffer'
+export const updateLeadCard = async (leadId: string, fileBuffer: Buffer) => {
     const storage = new StorageProvider();
     const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+
     if (!lead) throw new AppError('Lead não encontrado', 404);
+
     if (lead.business_card_url) {
         await storage.deleteFile(lead.business_card_url, 'cards');
     }
-    await storage.saveFile(filename, 'cards', 1024);
+
+    // Aqui está a mágica: o saveFile agora devolve a URL completa do Cloudinary!
+    const cloudinaryUrl = await storage.saveFile(fileBuffer, 'cards', 1024);
+
     const updatedLead = await prisma.lead.update({
         where: { id: leadId },
-        data: { business_card_url: filename },
+        data: { business_card_url: cloudinaryUrl }, // Salvamos o link completo no banco
         include: { interests: true }
     });
 
-    updatedLead.business_card_url = setFullURL(`files/cards/${updatedLead.business_card_url}`);
+    // Removida a linha do setFullURL, pois o cloudinaryUrl já tem o "https://"
 
     return updatedLead;
 };
