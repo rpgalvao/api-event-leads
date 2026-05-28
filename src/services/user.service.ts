@@ -22,9 +22,15 @@ export const getUserById = async (id: string): Promise<UserProfile | null> => {
 
     if (!user) return null;
 
+    // Regra para não quebrar links que já vêm do Cloudinary
+    let finalAvatarUrl = user.avatar_url;
+    if (finalAvatarUrl && !finalAvatarUrl.startsWith('http')) {
+        finalAvatarUrl = setFullURL(`files/avatars/${finalAvatarUrl}`);
+    }
+
     return {
         ...user,
-        avatar_url: user.avatar_url ? setFullURL(`files/avatars/${(user.avatar_url)}`) : null
+        avatar_url: finalAvatarUrl
     };
 };
 
@@ -42,25 +48,33 @@ export const listUsers = async () => {
     });
 
     const usersWithAvatarUrl = users.map(user => {
+        let finalAvatarUrl = user.avatar_url;
+        if (finalAvatarUrl && !finalAvatarUrl.startsWith('http')) {
+            finalAvatarUrl = setFullURL(`files/avatars/${finalAvatarUrl}`);
+        }
+
         return {
             ...user,
-            avatar_url: user.avatar_url ? setFullURL(`files/avatars/${user.avatar_url}`) : null
+            avatar_url: finalAvatarUrl
         };
     });
 
     return usersWithAvatarUrl;
 };
 
-export const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
+// ATENÇÃO: Adicionado o fileBuffer como terceiro parâmetro
+export const updateUser = async (id: string, data: Prisma.UserUpdateInput, fileBuffer?: Buffer) => {
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) throw new AppError('Usuário não encontrado', 404);
 
     const updateData = { ...data };
-
     const storage = new StorageProvider();
 
-    if (updateData.avatar_url && typeof updateData.avatar_url === 'string') {
-        await storage.saveFile(updateData.avatar_url, 'avatars', 200);
+    // Novo fluxo de upload com o Buffer
+    if (fileBuffer) {
+        const cloudinaryUrl = await storage.saveFile(fileBuffer, 'avatars', 200);
+        updateData.avatar_url = cloudinaryUrl; // Salva o link direto da nuvem no banco
+
         if (user.avatar_url) {
             await storage.deleteFile(user.avatar_url, 'avatars');
         }
@@ -90,11 +104,11 @@ export const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
             updatedAt: true
         }
     });
+
     if (!updatedUser) throw new AppError("Erro ao atualizar usuário", 500);
 
-    if (updatedUser.avatar_url) {
-        updatedUser.avatar_url = setFullURL(`files/avatars/${updatedUser.avatar_url}`);
-    }
+    // O setFullURL foi removido daqui, pois o avatar_url já é um link HTTPS válido retornado pelo Prisma.
+
     return updatedUser;
 };
 

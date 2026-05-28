@@ -1,4 +1,3 @@
-import fs from "fs/promises";
 import { RequestHandler } from "express";
 import { AppError } from "../errors/AppError";
 import * as UserService from "../services/user.service";
@@ -32,26 +31,22 @@ export const updateUser: RequestHandler = async (req, res) => {
     const loggedUserRole = req.user?.role;
     const file = req.file;
 
-    try {
-        if (loggedUserRole !== 'ADMIN' && loggedUserId !== id) {
-            if (file) await fs.unlink(file.path);
-            throw new AppError('Usuário não autorizado', 403);
-        }
-        const user = await UserService.getUserById(id);
-        if (!user) {
-            if (file) await fs.unlink(file?.path);
-            return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
-        }
-        const data = updateUserSchema.parse(req.body);
-        if (file) {
-            data.avatar_url = file.filename;
-        }
-        const updatedUser = await UserService.updateUser(user.id, data);
-        res.status(200).json({ success: true, data: updatedUser });
-    } catch (error) {
-        if (file) await fs.unlink(file.path);
-        throw error;
+    if (loggedUserRole !== 'ADMIN' && loggedUserId !== id) {
+        throw new AppError('Usuário não autorizado', 403);
     }
+
+    const user = await UserService.getUserById(id);
+
+    if (!user) {
+        return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+    }
+
+    const data = updateUserSchema.parse(req.body);
+
+    // Passamos o file?.buffer como um terceiro parâmetro para o serviço
+    const updatedUser = await UserService.updateUser(user.id, data, file?.buffer);
+
+    res.status(200).json({ success: true, data: updatedUser });
 };
 
 export const removeUser: RequestHandler = async (req, res) => {
