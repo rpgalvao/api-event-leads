@@ -14,7 +14,6 @@
   "keywords": [],
   "author": "@rpg Sistemas",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",

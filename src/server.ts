@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import router from '../src/routes/index.routes';
+import router from './routes/index.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
