@@ -5,8 +5,6 @@
 		"target": "es2023",
 		"strict": true,
 		"esModuleInterop": true,
-		"ignoreDeprecations": "6.0",
-
 		/* Adicione estas para evitar problemas comuns */
 		"outDir": "./dist", // Pasta onde o código convertido para JS vai ficar
 		"rootDir": "./src", // Garante que o TS só olhe para dentro da sua pasta src
