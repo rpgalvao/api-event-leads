@@ -7,13 +7,15 @@ async function main() {
     // Criptografando a senha padrão
     const password = await hashPassword('123456');
 
+    console.log("🚀 Tentando conectar ao banco de dados...");
+
     // Inserindo o usuário direto no Neon
     const admin = await prisma.user.create({
         data: {
             name: 'Renato - Admin',
             email: email,
             password: password,
-            role: 'ADMIN' // Garantindo o acesso total
+            role: 'ADMIN'
         }
     });
 
