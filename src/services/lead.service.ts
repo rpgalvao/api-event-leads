@@ -126,15 +126,30 @@ export const updateLeadCard = async (leadId: string, fileBuffer: Buffer) => {
     return updatedLead;
 };
 
-export const updateLead = async (id: string, data: Partial<LeadInput>) => {
+export const updateLead = async (id: string, data: Partial<LeadInput> & { status?: string; }) => {
     const leadExists = await prisma.lead.findUnique({ where: { id } });
     if (!leadExists) throw new AppError('Lead não encontrado', 404);
+
     try {
+        // 1. Separamos os interesses do restante dos dados
+        const { interests, ...restData } = data;
+
+        // 2. Montamos o objeto que vai para o banco
+        const updatePayload: any = { ...restData };
+
+        // 3. Se o frontend enviou interesses novos, formatamos com o 'set'
+        if (interests) {
+            updatePayload.interests = {
+                set: interests.map((interestId) => ({ id: interestId }))
+            };
+        }
+
         const updatedLead = await prisma.lead.update({
             where: { id },
-            data: data as any,
+            data: updatePayload,
             include: { interests: true }
         });
+
         return updatedLead;
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
