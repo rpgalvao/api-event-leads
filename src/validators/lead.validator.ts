@@ -21,7 +21,9 @@ export const updateLeadSchema = z.object({
     state: z.string().min(2, 'Use a sigla do estado (ex: SP)').max(2, 'Use a sigla do estado (ex: SP)').optional(),
     observation: z.string().optional(),
     eventId: z.uuid('ID do evento inválida').optional(),
-    interests: z.array(z.uuid()).min(1, 'Selecione ao menos um produto de interesse').optional()
+    interests: z.array(z.uuid()).min(1, 'Selecione ao menos um produto de interesse').optional(),
+    // AQUI ESTÁ A MÁGICA: Liberamos a entrada do status validando contra os enums exatos do Prisma
+    status: z.enum(['NEW', 'QUALIFIED', 'NEGOTIATION', 'ARCHIVED']).optional()
 });
 
 export const getLeadIdSchema = z.object({
